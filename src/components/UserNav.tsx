@@ -44,6 +44,11 @@ export function UserNav({ user, profile }: { user: any; profile: any }) {
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
+          {profile?.role === 'admin' && (
+            <Link href="/admin" className="w-full cursor-pointer">
+              <DropdownMenuItem className="font-semibold text-primary">Quản trị Hệ thống</DropdownMenuItem>
+            </Link>
+          )}
           <Link href="/dashboard" className="w-full cursor-pointer">
             <DropdownMenuItem>Bảng điều khiển</DropdownMenuItem>
           </Link>

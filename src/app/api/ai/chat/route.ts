@@ -54,6 +54,12 @@ export async function POST(request: NextRequest) {
       { document_id: documentId, user_id: user.id, role: 'assistant', content: text }
     ]);
 
+    // Log API Usage
+    await supabase.from('api_logs').insert({
+      user_id: user.id,
+      action_type: 'chat'
+    });
+
     return NextResponse.json({ reply: text });
 
   } catch (error: any) {

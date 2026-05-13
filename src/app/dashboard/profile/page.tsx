@@ -18,7 +18,7 @@ export default async function ProfilePage() {
     .from('users')
     .select('*')
     .eq('id', user.id)
-    .single()
+    .maybeSingle()
 
   return (
     <main className="max-w-5xl mx-auto p-4 md:p-8 mt-8">

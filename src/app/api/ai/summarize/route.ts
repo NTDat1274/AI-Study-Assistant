@@ -48,6 +48,12 @@ ${document.raw_text.substring(0, 30000)} // Giới hạn một phần text để
     const response = await result.response;
     const summary = response.text();
 
+    // Log API Usage
+    await supabase.from('api_logs').insert({
+      user_id: user.id,
+      action_type: 'summarize'
+    });
+
     return NextResponse.json({ summary });
 
   } catch (error: any) {

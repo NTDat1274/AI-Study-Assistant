@@ -77,6 +77,12 @@ ${document.raw_text.substring(0, 30000)}
       return NextResponse.json({ error: 'Failed to save quiz to database' }, { status: 500 });
     }
 
+    // Log API Usage
+    await supabase.from('api_logs').insert({
+      user_id: user.id,
+      action_type: 'quiz'
+    });
+
     return NextResponse.json({ success: true, quizId: quizData.id, questions: quizzes });
 
   } catch (error: any) {

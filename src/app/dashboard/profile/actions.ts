@@ -51,8 +51,7 @@ export async function updateProfile(formData: FormData) {
     if (Object.keys(dbUpdate).length > 0) {
       const { error: dbError } = await supabase
         .from('users')
-        .update(dbUpdate)
-        .eq('id', user.id)
+        .upsert({ id: user.id, email: user.email, ...dbUpdate })
       
       if (dbError) throw new Error('Lỗi khi cập nhật Database: ' + dbError.message)
     }
