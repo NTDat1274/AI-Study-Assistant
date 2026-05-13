@@ -105,3 +105,30 @@ Toàn bộ các tác vụ xử lý ngôn ngữ tự nhiên được thực hiệ
   - Tổng số Quiz đã thực hiện và Điểm số trung bình.
   - Lịch sử hoạt động gần đây (VD: "Đã tạo quiz từ file A", "Đã upload file B").
 - **Dữ liệu:** Được query trực tiếp từ các bảng liên quan trong PostgreSQL (Supabase) dựa trên `user_id`.
+
+---
+
+## 6. Giao diện người dùng phụ trợ (UI/UX Pages)
+Hệ thống mở rộng thêm các trang tĩnh (Public) và trang quản lý cá nhân (Private) nhằm mang lại trải nghiệm hoàn thiện (SaaS style).
+
+### 6.1. Trang chủ (Landing Page - `/`)
+- **Phân quyền:** Public. Dùng chung layout có Header (Logo, Navigation) và Footer.
+- **Cấu trúc nội dung (SaaS Style):**
+  - **Hero Section:** Tiêu đề chính, đoạn mô tả giá trị (Value Proposition), và Nút Call-to-Action (Đăng nhập / Trải nghiệm ngay).
+  - **Features:** Trình bày 3 tính năng cốt lõi (Tóm tắt AI, Tạo Quiz tự động, Gia sư AI).
+  - **How it Works:** Trực quan hóa 3 bước sử dụng (Upload -> Phân tích -> Học tập).
+  - **FAQ:** Danh sách các câu hỏi thường gặp dạng Accordion.
+
+### 6.2. Trang Giới thiệu (About - `/about`)
+- **Phân quyền:** Public.
+- **Nội dung:** 
+  - Thông tin đề tài: "AI Study Assistant – Hệ thống hỗ trợ học tập thông minh tích hợp trí tuệ nhân tạo".
+  - Thông tin thực hiện: Sinh viên Nguyễn Tiến Đạt (2212353), GVHD: Nguyễn Trọng Hiếu.
+  - Tóm tắt kiến trúc công nghệ (Next.js, Supabase, Gemini).
+
+### 6.3. Trang Quản lý Cá nhân (Profile - `/dashboard/profile`)
+- **Phân quyền:** Private (nằm trong Dashboard Layout).
+- **Tính năng nâng cao:**
+  - **Cập nhật thông tin:** Cho phép đổi Tên hiển thị (đồng bộ vào bảng `users` và metadata của Auth).
+  - **Cập nhật Mật khẩu:** Cho phép user đổi mật khẩu thông qua `supabase.auth.updateUser`.
+  - **Quản lý Avatar:** Cho phép tải ảnh đại diện lên Supabase Storage (Bucket: `avatars`) và cập nhật đường dẫn hiển thị.

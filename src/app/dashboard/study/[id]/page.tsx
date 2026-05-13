@@ -27,10 +27,10 @@ export default async function StudyPage(props: { params: Promise<{ id: string }>
   }
 
   return (
-    <div className="min-h-screen bg-muted/20 flex flex-col">
-      <header className="bg-white border-b px-8 py-4 flex items-center gap-4 sticky top-0 z-10">
+    <main className="flex-1 max-w-5xl mx-auto w-full p-4 md:p-8">
+      <div className="flex items-center gap-4 mb-8">
         <Link href="/dashboard">
-          <Button variant="ghost" size="icon">
+          <Button variant="outline" size="icon">
             <ArrowLeft className="w-5 h-5" />
           </Button>
         </Link>
@@ -42,11 +42,8 @@ export default async function StudyPage(props: { params: Promise<{ id: string }>
             Đã tải lên vào {new Date(document.created_at).toLocaleDateString('vi-VN')}
           </p>
         </div>
-      </header>
-
-      <main className="flex-1 max-w-5xl mx-auto w-full p-4 md:p-8">
-        <StudyTabs documentId={document.id} />
-      </main>
-    </div>
+      </div>
+      <StudyTabs documentId={document.id} />
+    </main>
   )
 }
