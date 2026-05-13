@@ -4,6 +4,7 @@ import UploadDocument from '@/components/UploadDocument'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { FileText, Calendar, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import Link from 'next/link'
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -51,7 +52,9 @@ export default async function DashboardPage() {
                       </span>
                     </div>
                     <div className="flex gap-2">
-                      <Button size="sm" className="w-full" variant="secondary">Học với AI</Button>
+                      <Link href={`/dashboard/study/${doc.id}`} className="w-full">
+                        <Button size="sm" className="w-full" variant="secondary">Học với AI</Button>
+                      </Link>
                       <Button size="sm" variant="destructive" className="px-2">
                         <Trash2 className="w-4 h-4" />
                       </Button>

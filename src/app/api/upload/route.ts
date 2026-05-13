@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@/utils/supabase/server';
-const pdfParseLib = require('pdf-parse');
+const PDFParser = require('pdf2json');
 import mammoth from 'mammoth';
 
 // Chạy trên Node.js runtime để hỗ trợ các thư viện đọc file native
@@ -45,10 +45,18 @@ export async function POST(request: NextRequest) {
     // Extract text based on file type
     if (file.type === 'application/pdf') {
       try {
-        const pdfData = await pdfParseLib(fileBuffer);
-        rawText = pdfData.text;
-      } catch (err) {
-        return NextResponse.json({ error: 'Failed to parse PDF file' }, { status: 500 });
+        const rawTextContent = await new Promise<string>((resolve, reject) => {
+          const pdfParser = new PDFParser(null, 1);
+          pdfParser.on('pdfParser_dataError', (errData: any) => reject(errData.parserError));
+          pdfParser.on('pdfParser_dataReady', () => {
+            resolve(pdfParser.getRawTextContent());
+          });
+          pdfParser.parseBuffer(fileBuffer);
+        });
+        rawText = rawTextContent;
+      } catch (err: any) {
+        console.error('PDF Parse Error:', err);
+        return NextResponse.json({ error: 'Failed to parse PDF file: ' + err.message }, { status: 500 });
       }
     } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
       try {
