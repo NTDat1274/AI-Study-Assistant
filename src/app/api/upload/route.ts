@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
-const PDFParser = require('pdf2json');
+import { createClient } from '@/lib/supabase/server';
+import PDFParser from 'pdf2json';
 import mammoth from 'mammoth';
 
 // Chạy trên Node.js runtime để hỗ trợ các thư viện đọc file native
@@ -12,6 +12,8 @@ const ALLOWED_TYPES = [
   'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
   'text/plain'
 ];
+
+type PdfParserError = { parserError?: Error }
 
 export async function POST(request: NextRequest) {
   try {
@@ -47,22 +49,25 @@ export async function POST(request: NextRequest) {
       try {
         const rawTextContent = await new Promise<string>((resolve, reject) => {
           const pdfParser = new PDFParser(null, 1);
-          pdfParser.on('pdfParser_dataError', (errData: any) => reject(errData.parserError));
+          pdfParser.on('pdfParser_dataError', (errData: PdfParserError) => {
+            reject(errData.parserError ?? new Error('PDF parse error'));
+          });
           pdfParser.on('pdfParser_dataReady', () => {
             resolve(pdfParser.getRawTextContent());
           });
           pdfParser.parseBuffer(fileBuffer);
         });
         rawText = rawTextContent;
-      } catch (err: any) {
+      } catch (err: unknown) {
         console.error('PDF Parse Error:', err);
-        return NextResponse.json({ error: 'Failed to parse PDF file: ' + err.message }, { status: 500 });
+        const message = err instanceof Error ? err.message : 'Unknown error'
+        return NextResponse.json({ error: 'Failed to parse PDF file: ' + message }, { status: 500 });
       }
     } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
       try {
         const result = await mammoth.extractRawText({ buffer: fileBuffer });
         rawText = result.value;
-      } catch (err) {
+      } catch {
         return NextResponse.json({ error: 'Failed to parse DOCX file' }, { status: 500 });
       }
     } else if (file.type === 'text/plain') {
@@ -79,7 +84,7 @@ export async function POST(request: NextRequest) {
     const storageFileName = `${user.id}/${Date.now()}_${Math.random().toString(36).substring(7)}.${fileExt}`;
 
     // Upload to Supabase Storage
-    const { data: storageData, error: storageError } = await supabase
+    const { error: storageError } = await supabase
       .storage
       .from('study_documents')
       .upload(storageFileName, fileBuffer, {
@@ -118,8 +123,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, document: docData });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Upload Error:', error);
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Internal Server Error'
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

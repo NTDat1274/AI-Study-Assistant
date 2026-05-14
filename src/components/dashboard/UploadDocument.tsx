@@ -2,9 +2,8 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { UploadCloud, File, Loader2 } from 'lucide-react'
+import { UploadCloud, Loader2 } from 'lucide-react'
 import { toast } from 'sonner'
-import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 
 export default function UploadDocument() {
@@ -55,9 +54,10 @@ export default function UploadDocument() {
 
       toast.success('Tải liệu lên thành công!', { id: toastId })
       router.refresh() // Reload data in dashboard
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error(error)
-      toast.error(error.message || 'Lỗi hệ thống', { id: toastId })
+      const message = error instanceof Error ? error.message : 'Lỗi hệ thống'
+      toast.error(message, { id: toastId })
     } finally {
       setIsUploading(false)
       e.target.value = '' // reset

@@ -1,17 +1,28 @@
-import { createClient } from '@/utils/supabase/server'
 import AdminOverviewClient from './AdminOverviewClient'
+import { getAdminOverviewStats } from '@/actions/admin'
 
 export default async function AdminDashboardPage() {
-  const supabase = await createClient()
+  let usersCount = 0
+  let docsCount = 0
+  let quizCount = 0
+  let logsCount = 0
+  let logs: Array<{ action_type: string; created_at: string }> = []
+  let errorMessage: string | null = null
 
-  // Fetch Stats
-  const { count: usersCount } = await supabase.from('users').select('*', { count: 'exact', head: true })
-  const { count: docsCount } = await supabase.from('documents').select('*', { count: 'exact', head: true })
-  const { count: quizCount } = await supabase.from('quizzes').select('*', { count: 'exact', head: true })
-  const { count: logsCount } = await supabase.from('api_logs').select('*', { count: 'exact', head: true })
+  try {
+    const result = await getAdminOverviewStats()
+    usersCount = result.usersCount
+    docsCount = result.docsCount
+    quizCount = result.quizCount
+    logsCount = result.logsCount
+    logs = result.logs
+  } catch (error: unknown) {
+    errorMessage = error instanceof Error ? error.message : 'Lỗi không xác định'
+  }
 
-  // Fetch AI Logs for charts
-  const { data: logs } = await supabase.from('api_logs').select('action_type, created_at')
+  if (errorMessage) {
+    return <div className="p-8 text-red-500">Lỗi khi tải dữ liệu tổng quan: {errorMessage}</div>
+  }
 
   // Process data for Bar Chart (7 days)
   const last7Days = Array.from({length: 7}, (_, i) => {
@@ -21,16 +32,14 @@ export default async function AdminDashboardPage() {
   }).reverse()
 
   const chartData = last7Days.map(date => {
-    // Note: this is a simple string match for demo purposes
-    const count = logs?.filter(log => log.created_at.startsWith(date)).length || 0
-    // Format date MM/DD
-    const [y, m, d] = date.split('-')
+    const count = logs.filter(log => log.created_at.startsWith(date)).length || 0
+    const [, m, d] = date.split('-')
     return { date: `${d}/${m}`, requests: count }
   })
 
   // Process data for Pie Chart
   const pieMap: Record<string, number> = {}
-  logs?.forEach(log => {
+  logs.forEach(log => {
     let name = log.action_type
     if (name === 'summarize') name = 'Tóm tắt'
     if (name === 'quiz') name = 'Tạo Quiz'
@@ -46,10 +55,10 @@ export default async function AdminDashboardPage() {
   return (
     <AdminOverviewClient 
       stats={{
-        users: usersCount || 0,
-        documents: docsCount || 0,
-        quizzes: quizCount || 0,
-        apiLogs: logsCount || 0
+        users: usersCount,
+        documents: docsCount,
+        quizzes: quizCount,
+        apiLogs: logsCount
       }}
       chartData={chartData}
       pieData={pieData.length > 0 ? pieData : [{name: 'Chưa có dữ liệu', value: 1}]}

@@ -1,7 +1,6 @@
 "use client";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +13,17 @@ import {
 import Link from "next/link";
 import { logout } from "@/app/(auth)/actions";
 
-export function UserNav({ user, profile }: { user: any; profile: any }) {
+type UserNavUser = {
+  email?: string | null
+}
+
+type UserNavProfile = {
+  full_name?: string | null
+  avatar_url?: string | null
+  role?: string | null
+} | null
+
+export function UserNav({ user, profile }: { user: UserNavUser; profile: UserNavProfile }) {
   const initials =
     profile?.full_name?.charAt(0) || user?.email?.charAt(0) || "U";
 

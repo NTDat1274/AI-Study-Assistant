@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { geminiModel } from '@/lib/gemini';
 
 export async function POST(request: NextRequest) {
@@ -62,8 +62,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ reply: text });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Chat Error:', error);
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Internal Server Error'
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

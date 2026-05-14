@@ -1,10 +1,10 @@
 import Link from "next/link";
 import { BookOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/lib/supabase/server";
 import { UserNav } from "./UserNav";
 
-export default async function AppHeader() {
+export default async function Header() {
   const supabase = await createClient();
   const {
     data: { user },

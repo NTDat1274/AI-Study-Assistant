@@ -1,10 +1,18 @@
-import { createClient } from '@/utils/supabase/server'
-import UploadDocument from '@/components/UploadDocument'
+import { createClient } from '@/lib/supabase/server'
+import UploadDocument from '@/components/dashboard/UploadDocument'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { FileText, Calendar } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import Link from 'next/link'
-import DeleteDocumentButton from '@/components/DeleteDocumentButton'
+import DeleteDocumentButton from '@/components/dashboard/DeleteDocumentButton'
+
+type DashboardDocument = {
+  id: string
+  filename: string
+  created_at: string
+  status: string
+  file_url: string
+}
 
 export default async function DashboardPage() {
   const supabase = await createClient()
@@ -15,15 +23,17 @@ export default async function DashboardPage() {
     .select('*')
     .order('created_at', { ascending: false })
 
+  const typedDocuments = (documents ?? []) as DashboardDocument[]
+
   return (
     <main className="max-w-5xl mx-auto p-8 grid gap-8">
       <UploadDocument />
 
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Tài liệu của bạn</h2>
-        {documents && documents.length > 0 ? (
+        {typedDocuments.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {documents.map((doc: any) => (
+            {typedDocuments.map((doc) => (
               <Card key={doc.id}>
                 <CardHeader className="pb-2">
                   <CardTitle className="text-base truncate flex items-center gap-2" title={doc.filename}>

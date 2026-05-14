@@ -1,6 +1,6 @@
-import { createClient } from '@/utils/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
-import StudyTabs from '@/components/StudyTabs'
+import StudyTabs from '@/components/study/StudyTabs'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'

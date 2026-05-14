@@ -11,19 +11,46 @@ import { BookOpen, HelpCircle, MessageSquare, Send, Loader2 } from 'lucide-react
 import { toast } from 'sonner'
 import ReactMarkdown from 'react-markdown'
 
+type QuizQuestion = {
+  question: string
+  options: string[]
+  correct_answer: string
+  explanation: string
+}
+
+type ChatMessage = {
+  role: 'user' | 'assistant'
+  content: string
+}
+
+type SummaryResponse = {
+  summary?: string
+  error?: string
+}
+
+type QuizResponse = {
+  questions?: QuizQuestion[]
+  error?: string
+}
+
+type ChatResponse = {
+  reply?: string
+  error?: string
+}
+
 export default function StudyTabs({ documentId }: { documentId: string }) {
   // States for Summary
   const [summary, setSummary] = useState<string | null>(null)
   const [isLoadingSummary, setIsLoadingSummary] = useState(false)
 
   // States for Quiz
-  const [quizzes, setQuizzes] = useState<any[]>([])
+  const [quizzes, setQuizzes] = useState<QuizQuestion[]>([])
   const [isLoadingQuiz, setIsLoadingQuiz] = useState(false)
   const [userAnswers, setUserAnswers] = useState<Record<number, string>>({})
   const [showResults, setShowResults] = useState(false)
 
   // States for Chat
-  const [chatHistory, setChatHistory] = useState<{role: string, content: string}[]>([])
+  const [chatHistory, setChatHistory] = useState<ChatMessage[]>([])
   const [chatMessage, setChatMessage] = useState('')
   const [isChatting, setIsChatting] = useState(false)
 
@@ -38,11 +65,12 @@ export default function StudyTabs({ documentId }: { documentId: string }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ documentId })
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
-      setSummary(data.summary)
-    } catch (err: any) {
-      toast.error(err.message || 'Lỗi khi tạo tóm tắt')
+      const data = (await res.json()) as SummaryResponse
+      if (!res.ok) throw new Error(data.error ?? 'Lỗi khi tạo tóm tắt')
+      setSummary(data.summary ?? '')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Lỗi khi tạo tóm tắt'
+      toast.error(message)
     } finally {
       setIsLoadingSummary(false)
     }
@@ -59,12 +87,13 @@ export default function StudyTabs({ documentId }: { documentId: string }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ documentId, numQuestions: 5, difficulty: 'Trung bình' })
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
-      setQuizzes(data.questions)
+      const data = (await res.json()) as QuizResponse
+      if (!res.ok) throw new Error(data.error ?? 'Lỗi khi tạo câu hỏi')
+      setQuizzes(data.questions ?? [])
       toast.success('Đã tạo xong câu hỏi trắc nghiệm!')
-    } catch (err: any) {
-      toast.error(err.message || 'Lỗi khi tạo câu hỏi')
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Lỗi khi tạo câu hỏi'
+      toast.error(message)
     } finally {
       setIsLoadingQuiz(false)
     }
@@ -108,12 +137,13 @@ export default function StudyTabs({ documentId }: { documentId: string }) {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ documentId, message: newMessage, history: geminiHistory })
       })
-      const data = await res.json()
-      if (!res.ok) throw new Error(data.error)
+      const data = (await res.json()) as ChatResponse
+      if (!res.ok) throw new Error(data.error ?? 'Lỗi khi gửi tin nhắn')
       
-      setChatHistory([...newHistory, { role: 'assistant', content: data.reply }])
-    } catch (err: any) {
-      toast.error(err.message || 'Lỗi khi gửi tin nhắn')
+      setChatHistory([...newHistory, { role: 'assistant', content: data.reply ?? '' }])
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : 'Lỗi khi gửi tin nhắn'
+      toast.error(message)
       // Khôi phục lại tin nhắn
       setChatMessage(newMessage)
       setChatHistory(chatHistory) 
@@ -180,7 +210,7 @@ export default function StudyTabs({ documentId }: { documentId: string }) {
                   <div key={i} className="space-y-3">
                     <h3 className="font-semibold text-lg">{i + 1}. {q.question}</h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                      {q.options.map((opt: string, j: number) => {
+                      {q.options.map((opt, j) => {
                         const isSelected = userAnswers[i] === opt;
                         const isCorrect = showResults && opt === q.correct_answer;
                         const isWrong = showResults && isSelected && opt !== q.correct_answer;
@@ -220,7 +250,7 @@ export default function StudyTabs({ documentId }: { documentId: string }) {
               </div>
             ) : (
                <div className="text-center py-12 text-muted-foreground">
-                 Chưa có câu hỏi nào. Nhấn "Tạo bộ câu hỏi mới" để bắt đầu.
+                 Chưa có câu hỏi nào. Nhấn &quot;Tạo bộ câu hỏi mới&quot; để bắt đầu.
                </div>
             )}
           </CardContent>

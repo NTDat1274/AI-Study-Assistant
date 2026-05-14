@@ -54,8 +54,9 @@ export default function DeleteDocumentButton({
         throw new Error(res.error);
       }
       toast.success("Đã xóa tài liệu thành công!", { id: toastId });
-    } catch (err: any) {
-      toast.error(err.message || "Lỗi khi xóa tài liệu", { id: toastId });
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : "Lỗi khi xóa tài liệu"
+      toast.error(message, { id: toastId });
     } finally {
       setIsDeleting(false);
     }

@@ -1,7 +1,6 @@
-import { createClient } from '@/utils/supabase/server'
+import { getAdminUsers } from '@/actions/admin'
 import {
   Table,
-  TableCaption,
   TableCell,
   TableHead,
   TableHeader,
@@ -10,16 +9,26 @@ import {
 } from "@/components/ui/table"
 import { Badge } from "@/components/ui/badge"
 
+type AdminUser = {
+  id: string
+  email: string
+  full_name?: string | null
+  created_at: string
+  role?: string | null
+}
+
 export default async function AdminUsersPage() {
-  const supabase = await createClient()
+  let users: AdminUser[] = []
+  let errorMessage: string | null = null
 
-  const { data: users, error } = await supabase
-    .from('users')
-    .select('*')
-    .order('created_at', { ascending: false })
+  try {
+    users = await getAdminUsers()
+  } catch (error: unknown) {
+    errorMessage = error instanceof Error ? error.message : 'Lỗi không xác định'
+  }
 
-  if (error) {
-    return <div className="p-8 text-red-500">Lỗi khi tải danh sách người dùng: {error.message}</div>
+  if (errorMessage) {
+    return <div className="p-8 text-red-500">Lỗi khi tải danh sách người dùng: {errorMessage}</div>
   }
 
   return (
@@ -41,7 +50,7 @@ export default async function AdminUsersPage() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {users?.map((u) => (
+            {users.map((u) => (
               <TableRow key={u.id}>
                 <TableCell className="font-medium">{u.id.substring(0, 8)}...</TableCell>
                 <TableCell>{u.email}</TableCell>

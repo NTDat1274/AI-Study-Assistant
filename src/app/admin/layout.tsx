@@ -1,5 +1,5 @@
-import AdminSidebar from "@/components/AdminSidebar";
-import { createClient } from "@/utils/supabase/server";
+import AdminSidebar from "@/components/admin/AdminSidebar";
+import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
 export default async function AdminLayout({

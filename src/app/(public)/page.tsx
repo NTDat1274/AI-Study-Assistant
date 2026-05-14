@@ -1,8 +1,8 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion'
-import { FileText, HelpCircle, MessageSquare, ArrowRight, Zap, Brain, Shield } from 'lucide-react'
+import { FileText, HelpCircle, MessageSquare, ArrowRight } from 'lucide-react'
 
 export default function LandingPage() {
   return (

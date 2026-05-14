@@ -10,7 +10,16 @@ import { toast } from 'sonner'
 import { Loader2 } from 'lucide-react'
 import { updateProfile } from './actions'
 
-export default function ProfileForm({ user, profile }: { user: any, profile: any }) {
+type ProfileUser = {
+  email?: string | null
+}
+
+type ProfileData = {
+  full_name?: string | null
+  avatar_url?: string | null
+} | null
+
+export default function ProfileForm({ user, profile }: { user: ProfileUser; profile: ProfileData }) {
   const [isLoading, setIsLoading] = useState(false)
   const [avatarPreview, setAvatarPreview] = useState<string | null>(profile?.avatar_url || null)
 

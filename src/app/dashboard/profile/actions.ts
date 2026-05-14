@@ -1,6 +1,6 @@
 'use server'
 
-import { createClient } from '@/utils/supabase/server'
+import { createClient } from '@/lib/supabase/server'
 import { revalidatePath } from 'next/cache'
 
 export async function updateProfile(formData: FormData) {
@@ -16,14 +16,14 @@ export async function updateProfile(formData: FormData) {
   const password = formData.get('password') as string
 
   try {
-    let avatarUrl = undefined
+    let avatarUrl: string | undefined
 
     // 1. Upload Avatar if provided
     if (avatarFile && avatarFile.size > 0) {
       const fileExt = avatarFile.name.split('.').pop()
       const fileName = `${user.id}/${Date.now()}.${fileExt}`
       
-      const { error: uploadError, data } = await supabase.storage
+      const { error: uploadError } = await supabase.storage
         .from('avatars')
         .upload(fileName, avatarFile, { upsert: true })
 
@@ -35,7 +35,7 @@ export async function updateProfile(formData: FormData) {
     }
 
     // 2. Update Auth Metadata & Password
-    const updateData: any = { data: {} }
+    const updateData: { data: Record<string, string>; password?: string } = { data: {} }
     if (fullName) updateData.data.full_name = fullName
     if (avatarUrl) updateData.data.avatar_url = avatarUrl
     if (password) updateData.password = password
@@ -44,7 +44,7 @@ export async function updateProfile(formData: FormData) {
     if (authError) throw new Error('Lỗi khi cập nhật Auth: ' + authError.message)
 
     // 3. Update public.users table
-    const dbUpdate: any = {}
+    const dbUpdate: { full_name?: string; avatar_url?: string } = {}
     if (fullName) dbUpdate.full_name = fullName
     if (avatarUrl) dbUpdate.avatar_url = avatarUrl
 
@@ -58,7 +58,8 @@ export async function updateProfile(formData: FormData) {
 
     revalidatePath('/dashboard')
     return { success: true }
-  } catch (error: any) {
-    return { error: error.message }
+  } catch (error: unknown) {
+    const message = error instanceof Error ? error.message : 'Lỗi không xác định'
+    return { error: message }
   }
 }

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { geminiModel } from '@/lib/gemini';
 
 export async function POST(request: NextRequest) {
@@ -56,8 +56,9 @@ ${document.raw_text.substring(0, 30000)} // Giới hạn một phần text để
 
     return NextResponse.json({ summary });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Summarize Error:', error);
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Internal Server Error'
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }

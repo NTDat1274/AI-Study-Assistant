@@ -6,15 +6,34 @@ import { Users, FileText, HelpCircle, Zap } from 'lucide-react'
 
 const COLORS = ['#0088FE', '#00C49F', '#FFBB28', '#FF8042'];
 
+type OverviewStats = {
+  users: number
+  documents: number
+  quizzes: number
+  apiLogs: number
+}
+
+type ChartDataPoint = {
+  date: string
+  requests: number
+}
+
+type PieDataPoint = {
+  name: string
+  value: number
+}
+
+type AdminOverviewClientProps = {
+  stats: OverviewStats
+  chartData: ChartDataPoint[]
+  pieData: PieDataPoint[]
+}
+
 export default function AdminOverviewClient({ 
   stats, 
   chartData,
   pieData
-}: { 
-  stats: any, 
-  chartData: any[],
-  pieData: any[]
-}) {
+}: AdminOverviewClientProps) {
   return (
     <div className="space-y-8">
       <div>

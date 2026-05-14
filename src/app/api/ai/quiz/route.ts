@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/utils/supabase/server';
+import { createClient } from '@/lib/supabase/server';
 import { geminiModel } from '@/lib/gemini';
 
 export async function POST(request: NextRequest) {
@@ -53,10 +53,10 @@ ${document.raw_text.substring(0, 30000)}
     // Làm sạch JSON (phòng trường hợp AI vẫn trả về markdown block)
     text = text.replace(/^```json\s*/i, '').replace(/```$/i, '').trim();
 
-    let quizzes;
+    let quizzes: unknown
     try {
       quizzes = JSON.parse(text);
-    } catch (e) {
+    } catch {
       console.error('Failed to parse AI JSON:', text);
       return NextResponse.json({ error: 'AI trả về định dạng không hợp lệ, vui lòng thử lại.' }, { status: 500 });
     }
@@ -85,8 +85,9 @@ ${document.raw_text.substring(0, 30000)}
 
     return NextResponse.json({ success: true, quizId: quizData.id, questions: quizzes });
 
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Quiz Gen Error:', error);
-    return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+    const message = error instanceof Error ? error.message : 'Internal Server Error'
+    return NextResponse.json({ error: message }, { status: 500 });
   }
 }
