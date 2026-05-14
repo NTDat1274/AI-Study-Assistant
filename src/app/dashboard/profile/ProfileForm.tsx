@@ -69,7 +69,7 @@ export default function ProfileForm({ user, profile }: { user: ProfileUser; prof
           <div className="grid gap-4 md:grid-cols-2">
             <div className="space-y-2">
               <Label htmlFor="email">Email (Không thể thay đổi)</Label>
-              <Input id="email" value={user.email} disabled className="bg-muted" />
+              <Input id="email" value={user.email || ''} disabled className="bg-muted" />
             </div>
             <div className="space-y-2">
               <Label htmlFor="full_name">Họ và tên hiển thị</Label>

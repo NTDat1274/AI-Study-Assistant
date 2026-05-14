@@ -48,8 +48,8 @@ export async function POST(request: NextRequest) {
     if (file.type === 'application/pdf') {
       try {
         const rawTextContent = await new Promise<string>((resolve, reject) => {
-          const pdfParser = new PDFParser(null, 1);
-          pdfParser.on('pdfParser_dataError', (errData: PdfParserError) => {
+          const pdfParser = new PDFParser(null, true);
+          pdfParser.on('pdfParser_dataError', (errData: any) => {
             reject(errData.parserError ?? new Error('PDF parse error'));
           });
           pdfParser.on('pdfParser_dataReady', () => {

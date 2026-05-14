@@ -1,6 +1,6 @@
 import { createClient } from '@/lib/supabase/server'
 import { notFound, redirect } from 'next/navigation'
-import StudyTabs from '@/components/study/StudyTabs'
+import StudyTabs from '@/components/StudyTabs'
 import Link from 'next/link'
 import { ArrowLeft } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -14,10 +14,10 @@ export default async function StudyPage(props: { params: Promise<{ id: string }>
     redirect('/login')
   }
 
-  // Lấy thông tin tài liệu
+  // Lấy thông tin tài liệu kèm summary
   const { data: document, error } = await supabase
     .from('documents')
-    .select('id, filename, created_at')
+    .select('id, filename, created_at, summary')
     .eq('id', params.id)
     .eq('user_id', user.id)
     .single()
@@ -25,6 +25,22 @@ export default async function StudyPage(props: { params: Promise<{ id: string }>
   if (error || !document) {
     notFound()
   }
+
+  // Lấy lịch sử Quiz
+  const { data: quizzes } = await supabase
+    .from('quizzes')
+    .select('*')
+    .eq('document_id', document.id)
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+
+  // Lấy lịch sử Chat
+  const { data: chatHistory } = await supabase
+    .from('chat_history')
+    .select('role, content')
+    .eq('document_id', document.id)
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: true })
 
   return (
     <main className="flex-1 max-w-5xl mx-auto w-full p-4 md:p-8">
@@ -43,7 +59,12 @@ export default async function StudyPage(props: { params: Promise<{ id: string }>
           </p>
         </div>
       </div>
-      <StudyTabs documentId={document.id} />
+      <StudyTabs 
+        documentId={document.id} 
+        initialSummary={document.summary}
+        initialQuizzes={quizzes || []}
+        initialChatHistory={chatHistory || []}
+      />
     </main>
   )
 }

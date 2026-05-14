@@ -54,6 +54,9 @@ ${document.raw_text.substring(0, 30000)} // Giới hạn một phần text để
       action_type: 'summarize'
     });
 
+    // Save summary to document
+    await supabase.from('documents').update({ summary }).eq('id', documentId);
+
     return NextResponse.json({ summary });
 
   } catch (error: unknown) {
