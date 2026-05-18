@@ -44,6 +44,12 @@ export default async function Header() {
           >
             Giới thiệu
           </Link>
+          <Link
+            href="/contact"
+            className="text-sm font-medium transition-colors hover:text-primary"
+          >
+            Liên hệ
+          </Link>
         </nav>
         <div className="flex items-center gap-4">
           {user ? (
