@@ -13,7 +13,7 @@ const ALLOWED_TYPES = [
   "text/plain",
 ];
 
-type PdfParserDataError = { parserError?: Error };
+type PdfParserError = Error | { parserError: Error };
 
 export async function POST(request: NextRequest) {
   try {
@@ -57,8 +57,12 @@ export async function POST(request: NextRequest) {
       try {
         const rawTextContent = await new Promise<string>((resolve, reject) => {
           const pdfParser = new PDFParser(null, true);
-          pdfParser.on("pdfParser_dataError", (errData: PdfParserDataError) => {
-            reject(errData.parserError ?? new Error("PDF parse error"));
+          pdfParser.on("pdfParser_dataError", (errData: PdfParserError) => {
+            if (errData instanceof Error) {
+              reject(errData);
+            } else {
+              reject(errData.parserError ?? new Error("PDF parse error"));
+            }
           });
           pdfParser.on("pdfParser_dataReady", () => {
             resolve(pdfParser.getRawTextContent());

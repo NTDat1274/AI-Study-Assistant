@@ -193,7 +193,10 @@ export default function StudyTabs({
     setChatMessage("");
 
     // Thêm tin nhắn user vào UI trước
-    const newHistory = [...chatHistory, { role: "user", content: newMessage }];
+    const newHistory: ChatMessage[] = [
+      ...chatHistory,
+      { role: "user", content: newMessage },
+    ];
     setChatHistory(newHistory);
     setIsChatting(true);
 
